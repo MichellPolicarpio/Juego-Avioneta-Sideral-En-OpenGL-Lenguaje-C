@@ -53,6 +53,7 @@ void render_game_over(void);
 void display_extra(void);
 void display_dialog_window(void);
 void reshape_dialog(int w, int h);
+void return_to_menu(int value);
 
 // Función de inicialización
 void init(void) {
@@ -104,12 +105,14 @@ void update(void) {
             }
             
             if (check_collision(0.0f, player.y_pos, 2.0f)) {
-                printf("¡Colisión detectada! Puntuación final: %d\n", score);
-                if (score > high_score) {
-                    high_score = score;
-                }
-                current_state = STATE_GAME_OVER;
+            printf("¡Colisión detectada! Puntuación final: %d\n", score);
+            if (score > high_score) {
+                high_score = score;
             }
+            current_state = STATE_GAME_OVER;
+            current_dialog = NULL;  // Limpiar diálogo actual
+            glutTimerFunc(5000, return_to_menu, 0);
+        }
             break;
             
         case STATE_PAUSED:
@@ -123,6 +126,14 @@ void update(void) {
             update_mission_status();
             break;
     }
+}
+
+void return_to_menu(int value) {
+    current_state = STATE_MENU;
+    score = 0;
+    init_player();
+    init_obstacles();
+    glutPostRedisplay();
 }
 
 // Función para renderizar el juego
@@ -331,17 +342,13 @@ void keyboard(unsigned char key, int x, int y) {
             break;
 
         case STATE_GAME_OVER:
-            if (key == 13) {  // ENTER
-                // Reiniciar juego
-                score = 0;
-                init_player();
-                init_obstacles();
-                current_state = STATE_PLAYING;
-            } else if (key == 27) {  // ESC
-                // Volver al menú
-                score = 0;
-                current_state = STATE_MENU;
-            }
+        if (key == 13) {  // ENTER
+            current_state = STATE_MENU;
+            score = 0;
+            init_player();
+            init_obstacles();
+        }
+        break;
             break;
 
         case STATE_DIALOG:
@@ -419,32 +426,174 @@ void display_extra(void) {
 
 // Función para la ventana de diálogos
 void display_dialog_window(void) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-    
-    if (current_dialog) {
-        render_dialog(current_dialog);
-    } else {
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
-        
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        
-        glColor3f(0.0f, 0.7f, 0.0f);
-        glRasterPos2f(-0.3f, 0.0f);
-        const char* msg = "Esperando comunicaciones...";
-        while (*msg) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *msg++);
-        }
-        
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-    }
-    
-    glutSwapBuffers();
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   glLoadIdentity();
+   
+   if (current_state == STATE_GAME_OVER) {
+       show_game_over_dialog();
+   }
+   else if (current_dialog) {
+       render_dialog(current_dialog);
+   }
+   else if (current_state == STATE_MENU) {
+       // Mostrar información inicial en la terminal
+       glMatrixMode(GL_PROJECTION);
+       glPushMatrix();
+       glLoadIdentity();
+       gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
+       
+       glMatrixMode(GL_MODELVIEW);
+       glLoadIdentity();
+
+       // Fondo negro
+       glColor4f(0.05f, 0.05f, 0.05f, 1.0f);
+       glBegin(GL_QUADS);
+           glVertex2f(-1.0f, -1.0f);
+           glVertex2f( 1.0f, -1.0f);
+           glVertex2f( 1.0f, 1.0f);
+           glVertex2f(-1.0f, 1.0f);
+       glEnd();
+
+       // Marco principal
+       glColor3f(0.2f, 0.3f, 0.2f);
+       glLineWidth(2.0f);
+       glBegin(GL_LINE_LOOP);
+           glVertex2f(-0.95f, 0.95f);
+           glVertex2f( 0.95f, 0.95f);
+           glVertex2f( 0.95f,-0.95f);
+           glVertex2f(-0.95f,-0.95f);
+       glEnd();
+
+       // Título
+       glColor3f(0.3f, 0.7f, 1.0f);
+       glRasterPos2f(-0.6f, 0.85f);
+       const char* title = "TERMINAL DE COMUNICACIONES TACTICAS MK-IV";
+       while (*title) glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *title++);
+
+       // Contexto de misión
+       glColor3f(0.0f, 0.8f, 1.0f);
+       const char* context[] = {
+           "INFORME DE MISION:",
+           "OPERACION: LIBERTAD",
+           "FECHA: 13/Dic/2024",
+           "ZONA: Oblast de Kursk",
+           "OBJETIVO: Infiltracion y destruccion",
+           "",
+           "INSTRUCCIONES TACTICAS:",
+           "- Evitar colision por fuerzas enemigas",
+           "- Mantener altitud optima",
+           "- Usar impulso en situaciones optimas",
+           "",
+           "CONTROLES OPERATIVOS:",
+           "W/S o FLECHAS: Control de altitud",
+           "ESPACIO: Propulsor de velocidad del avion",
+           "ESC: Pausa del juego",
+           "",
+           "SISTEMA DESARROLLADO POR:",
+           "Michell Policarpio - zS21002379",
+           "Graficacion Por Computadora NRC: 18679",
+           "FIEE - Universidad Veracruzana (UV) 2024"
+       };
+
+       float y_pos = 0.7f;
+       for(int i = 0; i < sizeof(context)/sizeof(context[0]); i++) {
+           glRasterPos2f(-0.9f, y_pos);
+           const char* text = context[i];
+           while (*text) glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *text++);
+           y_pos -= 0.08f;
+       }
+
+       glMatrixMode(GL_PROJECTION);
+       glPopMatrix();
+   }
+   else {
+       // Terminal operativa normal
+       glMatrixMode(GL_PROJECTION);
+       glPushMatrix();
+       glLoadIdentity();
+       gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
+       
+       glMatrixMode(GL_MODELVIEW);
+       glLoadIdentity();
+
+       // Fondo negro
+       glColor4f(0.05f, 0.05f, 0.05f, 1.0f);
+       glBegin(GL_QUADS);
+           glVertex2f(-1.0f, -1.0f);
+           glVertex2f( 1.0f, -1.0f);
+           glVertex2f( 1.0f, 1.0f);
+           glVertex2f(-1.0f, 1.0f);
+       glEnd();
+
+       // Marco principal
+       glColor3f(0.2f, 0.3f, 0.2f);
+       glLineWidth(2.0f);
+       glBegin(GL_LINE_LOOP);
+           glVertex2f(-0.95f, 0.95f);
+           glVertex2f( 0.95f, 0.95f);
+           glVertex2f( 0.95f,-0.95f);
+           glVertex2f(-0.95f,-0.95f);
+       glEnd();
+
+       // Título
+       glColor3f(0.3f, 0.7f, 1.0f);
+       glRasterPos2f(-0.6f, 0.85f);
+       const char* title = "TERMINAL DE COMUNICACIONES TACTICAS MK-IV";
+       while (*title) glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *title++);
+
+       // Radar giratorio
+       static float radar_angle = 0.0f;
+       radar_angle += 0.03f;
+       if (radar_angle > 360.0f) radar_angle = 0.0f;
+
+       // Marco del radar
+       glColor3f(0.2f, 0.3f, 0.2f);
+       glBegin(GL_LINE_LOOP);
+       for(int i = 0; i < 360; i += 10) {
+           float rad = i * 3.14159f / 180.0f;
+           glVertex2f(-0.75f + cos(rad)*0.15f, 0.65f + sin(rad)*0.15f);
+       }
+       glEnd();
+
+       // Línea del radar
+       glColor4f(0.0f, 1.0f, 0.0f, 0.7f);
+       glBegin(GL_LINES);
+           glVertex2f(-0.75f, 0.65f);
+           float rad = radar_angle * 3.14159f / 180.0f;
+           glVertex2f(-0.75f + cos(rad)*0.15f, 0.65f + sin(rad)*0.15f);
+       glEnd();
+
+       // Indicadores de estado
+       glColor3f(0.0f, 0.8f, 1.0f);
+       const char* indicators[] = {
+           "RECEPCION SATELLITAL: 77%",
+           "ESTADO: OPERATIVO",
+           "CANAL: ENCRIPTADO",
+           "MISION: LIBERTAD"
+       };
+       float y_pos = 0.35f;
+       for(int i = 0; i < 4; i++) {
+           glRasterPos2f(-0.93f, y_pos);
+           const char* text = indicators[i];
+           while (*text) glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *text++);
+           y_pos -= 0.08f;
+       }
+
+       // Alerta
+       static float blink = 0.0f;
+       blink += 0.1f;
+       if(sin(blink) > 0) {
+           glColor3f(1.0f, 0.6f, 0.0f);
+           glRasterPos2f(0.25f, 0.35f);
+           const char* alert = "! ZONA HOSTIL !";
+           while (*alert) glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *alert++);
+       }
+
+       glMatrixMode(GL_PROJECTION);
+       glPopMatrix();
+   }
+   
+   glutSwapBuffers();
 }
 
 void reshape_dialog(int w, int h) {
@@ -458,56 +607,47 @@ void reshape_dialog(int w, int h) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-// Función principal
 int main(int argc, char** argv) {
-    // Obtener resolución de la pantalla
-    int screen_width = glutGet(GLUT_SCREEN_WIDTH);
-    
-    // Inicializar GLUT
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+   glutInit(&argc, argv);
+   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-    // Configurar ventana principal del juego
-    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    // Centrar la ventana principal horizontalmente y colocarla cerca de la parte superior
-    int main_x = (screen_width - WINDOW_WIDTH) / 2;
-    int main_y = 50;
-    glutInitWindowPosition(main_x, main_y);
-    window_main = glutCreateWindow(WINDOW_TITLE);
+   // Ventana principal
+   glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+   int main_x = 20;  // Más a la izquierda
+   int main_y = 50;
+   glutInitWindowPosition(main_x, main_y);
+   window_main = glutCreateWindow(WINDOW_TITLE);
 
-    // Inicializar principal
-    init();
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutSpecialFunc(special_keys);
-    glutTimerFunc(0, timer, 0);
-    glutKeyboardFunc(keyboard);
-    glutKeyboardUpFunc(keyboard_up);
+   init();
+   glutDisplayFunc(display);
+   glutReshapeFunc(reshape);
+   glutSpecialFunc(special_keys);
+   glutTimerFunc(0, timer, 0);
+   glutKeyboardFunc(keyboard);
+   glutKeyboardUpFunc(keyboard_up);
 
-    // Configurar ventana de diálogos
-    int dialog_width = 500;
-    int dialog_height = 280;
-    int dialog_x = main_x + (WINDOW_WIDTH - dialog_width) / 2;
-    int dialog_y = main_y + WINDOW_HEIGHT + 30;
-    
-    glutInitWindowSize(dialog_width, dialog_height);
-    glutInitWindowPosition(dialog_x, dialog_y);
-    window_dialog = glutCreateWindow("Terminal de Comunicaciones");
+   // Ventana de diálogos más separada
+   int dialog_width = 500;
+   int dialog_height = 280;
+   int dialog_x = main_x + WINDOW_WIDTH + 50;  // 50 píxeles más de separación
+   int dialog_y = main_y;
+   
+   glutInitWindowSize(dialog_width, dialog_height);
+   glutInitWindowPosition(dialog_x, dialog_y);
+   window_dialog = glutCreateWindow("Terminal de Comunicaciones");
 
-    // Inicializar ventana de diálogos
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    
-    // Registrar callbacks para ventana de diálogos
-    glutDisplayFunc(display_dialog_window);
-    glutReshapeFunc(reshape_dialog);
+   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+   glutDisplayFunc(display_dialog_window);
+   glutReshapeFunc(reshape_dialog);
 
-    // Asegurarnos de que la ventana principal esté al frente
-    glutPushWindow();
-    glutSetWindow(window_main);
+    glutSetWindow(window_dialog);  // Primero seleccionar la de diálogo
+    glutPushWindow();             // Ponerla al frente temporalmente
+    glutSetWindow(window_main);    // Luego seleccionar la principal
+    glutPushWindow();             // Y ponerla al frente definitivamente
 
-    printf("Iniciando juego...\n");
-    glutMainLoop();
-    
-    cleanup();
-    return 0;
+   printf("Iniciando juego...\n");
+   glutMainLoop();
+   
+   cleanup();
+   return 0;
 }

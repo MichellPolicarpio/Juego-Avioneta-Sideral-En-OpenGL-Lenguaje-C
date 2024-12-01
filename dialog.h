@@ -48,6 +48,7 @@ void init_dialogs(void);
 void render_dialog(DialogNode* node);
 void handle_dialog_input(unsigned char key);
 void cleanup_dialogs(void);
+void show_game_over_dialog(void);
 
 // Funciones de la misión
 void start_mission(void);

@@ -231,6 +231,40 @@ void render_dialog(DialogNode* node) {
     glMatrixMode(GL_MODELVIEW);
 }
 
+void show_game_over_dialog(void) {
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   
+   // Fondo negro semi-transparente
+   glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
+   glBegin(GL_QUADS);
+       glVertex2f(-1.0f, -1.0f);
+       glVertex2f( 1.0f, -1.0f);
+       glVertex2f( 1.0f,  1.0f);
+       glVertex2f(-1.0f,  1.0f);
+   glEnd();
+
+   // GAME OVER
+   glColor3f(1.0f, 0.0f, 0.0f);
+   const char* text = "GAME OVER";
+   glRasterPos2f(-0.4f, 0.2f);
+   while (*text) {
+       glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *text++);
+       glTranslatef(0.15f, 0, 0);
+   }
+
+   // Mensaje de aliento
+   glLoadIdentity();
+   glColor3f(1.0f, 1.0f, 1.0f);
+   const char* msg = "¡El cielo te espera de nuevo, piloto!";
+   glRasterPos2f(-0.4f, -0.1f);
+   while (*msg) {
+       glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *msg++);
+   }
+
+   glDisable(GL_BLEND);
+}
+
 // Manejar input del diálogo
 void handle_dialog_input(unsigned char key) {
     if (!current_dialog) return;
