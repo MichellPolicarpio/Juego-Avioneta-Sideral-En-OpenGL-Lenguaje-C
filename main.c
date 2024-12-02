@@ -11,7 +11,11 @@ coloca: gcc -Wall -framework OpenGL -framework GLUT menu.c player.c obstacle.c m
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h> 
-#include "dialog.h"  
+#include "dialog.h" 
+#include "stb_image.h"
+
+// Y agregar la variable global para la textura si no la tienes:
+GLuint backgroundTexture; 
 
 // Constantes
 #define WINDOW_WIDTH 800
@@ -59,7 +63,22 @@ void return_to_menu(int value);
 void init(void) {
     init_dialogs();  // Añadir esta línea
     init_obstacles();
-    
+
+    // Cargar textura
+    int width, height, channels;
+    unsigned char* image = stbi_load("Background1.jpeg", &width, &height, &channels, 0);
+
+    if (image) {
+        glGenTextures(1, &backgroundTexture);
+        glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        printf("Textura cargada exitosamente: %dx%d con %d canales\n", width, height, channels);
+        stbi_image_free(image);
+    } else {
+        printf("Error cargando la textura: %s\n", stbi_failure_reason());
+    }
 
     // Configurar color de fondo
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -111,7 +130,7 @@ void update(void) {
             }
             current_state = STATE_GAME_OVER;
             current_dialog = NULL;  // Limpiar diálogo actual
-            glutTimerFunc(5000, return_to_menu, 0);
+            //glutTimerFunc(5000, return_to_menu, 0);
         }
             break;
             
@@ -138,12 +157,31 @@ void return_to_menu(int value) {
 
 // Función para renderizar el juego
 void render_game(void) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    
+    // Renderizar fondo con textura
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+    
     glPushMatrix();
+    glTranslatef(0.0f, 0.0f, -105.0f);  //Profundidad de 90° grados
+    
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-55.0f, -40.0f, 10.0f);    // Esquina inferior izquierda
+    glTexCoord2f(1.0f, 1.0f); glVertex3f( 55.0f, -40.0f, 10.0f);    // Esquina inferior derecha
+    glTexCoord2f(1.0f, 0.0f); glVertex3f( 55.0f,  40.0f, 10.0f);    // Esquina superior izquierda
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-55.0f,  40.0f, 10.0f);    // Esquina superior derecha
+    glEnd();
+    
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
     
     // Vista del juego
     glLoadIdentity();
     gluLookAt(0.0f, 0.0f, 70.0f,
-              20.0f, 0.0f, 0.0f,
+              25.0f, 0.0f, 0.0f,
               0.0f, 1.0f, 0.0f);
 
     render_obstacles();
