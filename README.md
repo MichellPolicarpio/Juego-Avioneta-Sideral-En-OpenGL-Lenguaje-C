@@ -109,7 +109,7 @@ Proyecto Final para la materia de Graficación por Computadora
 - **Universidad:** Universidad Veracruzana
 - **Facultad:** FIEE
 - **Período:** 2024
-- **Profesor:** [Nombre del Profesor]
+- **Materia:** Graficación por Computadora
 - **NRC:** 18679
 
 ## 🔗 Enlaces de Interés
