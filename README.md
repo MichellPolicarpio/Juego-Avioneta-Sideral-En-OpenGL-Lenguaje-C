@@ -1,7 +1,7 @@
 # 🎮 Juego Avioneta Sideral en OpenGL/C
 
 ## 📖 Descripción
-Juego de acción en 2D/3D desarrollado en C utilizando OpenGL. El jugador controla una avioneta a través de terreno hostil, evadiendo obstáculos, recolectando municiones y completando misiones tácticas.
+Juego de Avioneta esquivadora de obstáculos desarrollado en C utilizando OpenGL. El jugador controla una avioneta a través de terreno hostil, evadiendo obstáculos, recolectando municiones y completando misiones tácticas.
 
 ### ✨ Características Principales
 - 🛩️ Control fluido de la avioneta con física básica
