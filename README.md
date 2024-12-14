@@ -1,7 +1,5 @@
 # 🎮 Juego Avioneta Sideral en OpenGL/C
 
-![Banner del Juego](insertar_imagen_banner.png)
-
 ## 📖 Descripción
 Juego de acción en 2D/3D desarrollado en C utilizando OpenGL. El jugador controla una avioneta a través de terreno hostil, evadiendo obstáculos, recolectando municiones y completando misiones tácticas.
 
@@ -46,7 +44,7 @@ cd Juego-Avioneta-Sideral-En-OpenGL-Lenguaje-C
 
 3. Compilar el juego:
 ```bash
-gcc -Wall -framework OpenGL -framework GLUT main.c -o juego
+gcc -Wall -framework OpenGL -framework GLUT Avioneta_Sideral.c -o juego
 ```
 
 4. Ejecutar:
@@ -71,24 +69,15 @@ gcc -Wall -framework OpenGL -framework GLUT main.c -o juego
 3. Completar misiones tácticas
 4. Lograr la máxima puntuación
 
-## 🖼️ Capturas de Pantalla
-
-![Gameplay](insertar_imagen_gameplay.png)
-![Menú Principal](insertar_imagen_menu.png)
-![Terminal](insertar_imagen_terminal.png)
-
 ## 🏗️ Arquitectura del Proyecto
 
 ```
 proyecto/
-├── main.c
+├── Avioneta_Sideral.c
 ├── config.h
 ├── stb_image.h
-├── assets/
-│   ├── texturas/
-│   └── sonidos/
-└── docs/
-    └── manual.md
+├── Background1.jpg/
+│   
 ```
 
 ## 📈 Características Técnicas
