@@ -2,7 +2,7 @@
 // ALumno: Policarpio Moran Michell Alexis - zS21002379 - Ingenieria en Informatica - FIEE - UV
 
 // PARA COMPILARLO EN TERMINAL (MacOS): 
-<<<<<<< HEAD
+
 // gcc -Wall -framework OpenGL -framework GLUT  Avioneta_Sideral.c -o juego
 // ./juego
 
@@ -10,12 +10,10 @@
 // gcc -Wall Avioneta_Sideral.c -o juego -lGL -lGLU -lglut -lm
 // ./juego
 
-
-=======
 // gcc -Wall -framework OpenGL -framework GLUT  main.c -o juego
 // ./juego
 
->>>>>>> 790c6ee80f4f0a927a6466c98ff7301d83e9dfe9
+
 /*======================================*
  *  SECCIÓN: BIBLIOTECAS E INCLUSIONES  *
  *======================================*/
