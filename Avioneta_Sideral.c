@@ -9,10 +9,6 @@
 // gcc -Wall Avioneta_Sideral.c -o juego -lGL -lGLU -lglut -lm
 // ./juego
 
-// PARA COMPILARLO EN TERMINAL (MacOS - XCode):
-// gcc -Wall -framework OpenGL -framework GLUT  main.c -o juego
-// ./juego
-
 
 /*======================================*
  *  SECCIÓN: BIBLIOTECAS E INCLUSIONES  *
@@ -38,13 +34,13 @@
 #include <stdio.h>
 #include <math.h> 
 #include <stdbool.h>
-<<<<<<< HEAD
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-=======
->>>>>>> 790c6ee80f4f0a927a6466c98ff7301d83e9dfe9
+
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"             // Libreria usada para implementar imagen de fondo para el videojuego
 
@@ -1588,7 +1584,7 @@ void inicializar_menu(void) {
 // Actualizar menú
 void actualizar_menu(void) {
     // aqui animaciones o actualizaciones después
-<<<<<<< HEAD
+
 // Animación del título
 static float title_animation_offset = 0.0f;
 title_animation_offset += delta_time * 0.5f;
@@ -1596,8 +1592,8 @@ if (title_animation_offset > 1.0f) {
     title_animation_offset -= 1.0f;
 }
 game_menu.title_pos_y = 0.5f + sin(title_animation_offset * 2.0f * M_PI) * 0.05f;
-=======
->>>>>>> 790c6ee80f4f0a927a6466c98ff7301d83e9dfe9
+
+
 }
 
 void renderizar_menu(void) {
